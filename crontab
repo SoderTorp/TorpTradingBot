@@ -1,0 +1,17 @@
+# TradingBot cron schedule
+# Times are UTC. US market open = 13:30-20:00 UTC (ET + 4 or 5 hrs).
+# Each script checks Alpaca's clock API and exits immediately if market is closed.
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# Wheel Strategy — every 15 min on weekdays during market window
+*/15 13-20 * * 1-5 cd /app && /usr/local/bin/python strategies/wheel.py >> /app/logs/cron.log 2>&1
+
+# Copy Trading — scan for new politician trades every 30 min
+*/30 13-20 * * 1-5 cd /app && /usr/local/bin/python strategies/copy_trading.py >> /app/logs/cron.log 2>&1
+
+# Copy Trade monitor — check stops/trailing/ladder every 5 min
+*/5 13-20 * * 1-5 cd /app && /usr/local/bin/python strategies/copy_trading.py --monitor >> /app/logs/cron.log 2>&1
+
+# Wheel daily summary — 20:30 UTC = ~4:30 PM ET
+30 20 * * 1-5 cd /app && /usr/local/bin/python strategies/wheel.py --summary >> /app/logs/cron.log 2>&1
