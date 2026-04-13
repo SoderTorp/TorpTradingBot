@@ -52,7 +52,7 @@ jobs:
       # Build the project (if needed for compiled languages)
       # Python doesn't require compilation, but this step can be used for testing
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
