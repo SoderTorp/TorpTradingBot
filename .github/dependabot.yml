@@ -1,0 +1,80 @@
+version: 2
+
+# Python dependencies
+updates:
+  # Check for Python dependency updates
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "UTC"
+    
+    # Pull request settings
+    pull-request-branch-name:
+      separator: "/"
+    
+    # Grouping strategy
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+      production-dependencies:
+        dependency-type: "production"
+    
+    # Commit message customization
+    commit-message:
+      prefix: "chore(deps):"
+      prefix-development: "chore(deps-dev):"
+      include: "scope"
+    
+    # Version updates
+    versioning-strategy: "auto"
+    open-pull-requests-limit: 10
+    
+    # Security settings
+    rebase-strategy: "auto"
+    labels:
+      - "dependencies"
+      - "security"
+    
+    reviewers:
+      - "SoderTorp"
+    
+    # Prioritize security updates
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    
+    ignore: []
+
+  # GitHub Actions workflow updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "UTC"
+    
+    pull-request-branch-name:
+      separator: "/"
+    
+    commit-message:
+      prefix: "ci:"
+      include: "scope"
+    
+    labels:
+      - "ci"
+      - "github-actions"
+    
+    reviewers:
+      - "SoderTorp"
+    
+    # Update GitHub Actions
+    allow:
+      - dependency-type: "direct"
+
+# Security vulnerability patches take priority
+security-updates-enabled: true
+security-and-quality-updates-enabled: true

@@ -1,0 +1,92 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: 
+      - main
+      - develop
+  pull_request:
+    branches: 
+      - main
+      - develop
+  schedule:
+    # Run weekly security analysis on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    permissions:
+      contents: read
+      security-events: write
+      statuses: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Initialize the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          # CodeQL queries to run (security and quality checks)
+          queries: security-and-quality
+          # Database creation details
+          db-location: '${{ github.workspace }}/codeql_databases'
+
+      # Build the project (if needed for compiled languages)
+      # Python doesn't require compilation, but this step can be used for testing
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -q pylint bandit
+
+      # Run linting for additional security checks
+      - name: Run pylint
+        continue-on-error: true
+        run: |
+          pylint --disable=all --enable=E,F,W \
+            strategies/ ai/ *.py || true
+
+      # Run bandit for security-specific issues
+      - name: Run bandit security linter
+        continue-on-error: true
+        run: |
+          bandit -r strategies/ ai/ main.py || true
+
+      # Perform the CodeQL analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: true
+
+      # Upload results to GitHub Security tab
+      - name: Upload CodeQL Results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+          category: CodeQL

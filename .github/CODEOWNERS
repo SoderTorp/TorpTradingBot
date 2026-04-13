@@ -1,0 +1,77 @@
+# GitHub CODEOWNERS file
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Code owners are automatically requested for review when someone opens a PR 
+# that modifies code they own.
+
+# ============================================================================
+# GLOBAL DEFAULT - All changes require approval
+# ============================================================================
+* @SoderTorp
+
+# ============================================================================
+# TRADING STRATEGIES - Critical financial logic
+# ============================================================================
+/strategies/                @SoderTorp
+/strategies/wheel.py        @SoderTorp
+/strategies/politician.py   @SoderTorp
+
+# ============================================================================
+# AI INTEGRATION - LLM interaction and model logic
+# ============================================================================
+/ai/                        @SoderTorp
+/ai/ollama_client.py        @SoderTorp
+
+# ============================================================================
+# CONFIGURATION & SECRETS - High sensitivity
+# ============================================================================
+config.yaml                 @SoderTorp
+config.example.yaml         @SoderTorp
+.env*                       @SoderTorp
+secrets/                    @SoderTorp
+.github/                    @SoderTorp
+
+# ============================================================================
+# GITHUB CONFIGURATION - Security-critical
+# ============================================================================
+.github/workflows/          @SoderTorp
+.github/CODEOWNERS          @SoderTorp
+.github/FUNDING.yml         @SoderTorp
+
+# ============================================================================
+# SECURITY DOCUMENTATION
+# ============================================================================
+SECURITY.md                 @SoderTorp
+CONTRIBUTING.md             @SoderTorp
+
+# ============================================================================
+# DOCKER & DEPLOYMENT - Infrastructure
+# ============================================================================
+Dockerfile                  @SoderTorp
+docker-compose.yml          @SoderTorp
+
+# ============================================================================
+# DEPENDENCIES - Supply chain
+# ============================================================================
+requirements.txt            @SoderTorp
+setup.py                    @SoderTorp
+pyproject.toml              @SoderTorp
+poetry.lock                 @SoderTorp
+
+# ============================================================================
+# PROJECT METADATA
+# ============================================================================
+LICENSE                     @SoderTorp
+README.md                   @SoderTorp
+.gitignore                  @SoderTorp
+
+# ============================================================================
+# SCHEDULER & CRON JOBS
+# ============================================================================
+/scheduler/                 @SoderTorp
+/scheduler/cron_jobs.sh     @SoderTorp
+
+# ============================================================================
+# MAIN ENTRY POINT
+# ============================================================================
+main.py                     @SoderTorp
