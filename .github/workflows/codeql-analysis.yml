@@ -81,12 +81,3 @@ jobs:
         uses: github/codeql-action/analyze@v2
         with:
           category: "/language:${{ matrix.language }}"
-          upload: true
-
-      # Upload results to GitHub Security tab
-      - name: Upload CodeQL Results
-        if: always()
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: CodeQL
