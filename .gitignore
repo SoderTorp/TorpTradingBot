@@ -1,3 +1,271 @@
+# === SECURITY: Environment and Secrets ===
+# CRITICAL: Never commit actual credentials, API keys, or sensitive data
+
+# Environment variable files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+
+# Configuration files with secrets
+config.yaml  # Add to gitignore if it contains real credentials
+config.local.yaml
+config.*.yaml
+
+# Credentials and keys
+secrets/
+credentials/
+*.key
+*.pem
+*.p8
+*.pfx
+*.jks
+*.keystore
+
+# Trading API credentials
+.alpaca
+alpaca_credentials.json
+alpaca_config.yaml
+
+# AI/Ollama tokens
+ollama_token.txt
+.ollama
+
+# Database files with data
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3
+*.sqlite-journal
+
+# AWS/Cloud credentials
+.aws/
+.aws/credentials
+.aws/config
+*.pem
+
+# GCP credentials
+google-credentials.json
+*.json  # (if it contains service account keys)
+
+# SSH keys
+.ssh/
+id_rsa
+id_rsa.pub
+known_hosts
+
+# Azure credentials
+.azure/
+azure_credentials.json
+
+# Temporary credential files
+tmp_credentials/
+temp_keys/
+
+# === SECURITY: Logs and Audit Trails ===
+
+# Application logs (may contain sensitive data)
+*.log
+logs/
+*.log.*
+
+# Crash dumps
+*.dmp
+*.dump
+
+# === SECURITY: IDE and Editor Secrets ===
+
+# JetBrains IDE
+.idea/
+.idea/*
+*.iml
+*.iws
+*.ipr
+
+# VS Code secrets
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim/Neovim
+.vim/
+.netrwhist
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# === SECURITY: OS-specific ===
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# === SECURITY: Dependency/Package Cache ===
+
+# Python cache with bytecode
+__pycache__/
+*.py[codz]
+*$py.class
+
+# Virtual environments (don't commit these)
+venv/
+env/
+ENV/
+.venv
+.pyenv
+
+# Pip cache
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Poetry cache
+poetry.lock  # Keep IN repo but review changes
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# === SECURITY: Test and Build Artifacts ===
+
+# Coverage reports (often contain file paths)
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Test artifacts
+.pytest_cache/
+.tox/
+.nox/
+.hypothesis/
+
+# Build directories
+dist/
+build/
+*.egg
+
+# === SECURITY: Temporary Files ===
+
+# Temporary backup files
+*.bak
+*.backup
+*.tmp
+*.temp
+
+# macOS temporary
+.Spotlight-V100
+.Trashes
+
+# Windows temporary
+$RECYCLE.BIN/
+
+# === SECURITY: Third-party Tool Caches ===
+
+# Ruff cache (Python linter)
+.ruff_cache/
+
+# MyPy cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Bandit (security linter) cache
+.bandit
+
+# === SECURITY: Cursor AI ===
+
+# Cursor IDE
+.cursorignore
+.cursorindexingignore
+
+# === SECURITY: Abstra (if used) ===
+
+.abstra/
+
+# === SECURITY: Local Testing ===
+
+# Local test data
+test_data/
+test_results/
+test_output/
+
+# Development-only files
+.dev/
+dev_scripts/
+local_config/
+
+# === SECURITY: Docker ===
+
+# Docker build cache (may contain sensitive layers)
+.docker/
+docker-compose.override.yml
+
+# === SECURITY: CI/CD ===
+
+# GitHub Actions artifacts
+.github/workflows/artifacts/
+
+# Local CI test outputs
+ci_output/
+ci_cache/
+
+# === CUSTOM FOR TORPTRADINGBOT ===
+
+# Real trade data
+trade_history.csv
+trade_data/
+account_positions.json
+account_history/
+
+# Real market data (during development)
+market_data/
+*_live_data.csv
+
+# Backtest results with sensitive info
+backtest_results/
+optimization_results/
+
+# Cache files from Ollama
+ollama_cache/
+.ollama_cache/
+
+# Politician disclosure tracking data
+politician_trades/
+politician_cache/
+
+# Local Docker volumes
+docker_volumes/
+
+# === ALWAYS REVIEW BEFORE COMMITTING ===
+
+# Files that SHOULD typically be in git but require careful review:
+# - requirements.txt (review for version pinning)
+# - config.example.yaml (example, not real creds)
+# - docker-compose.yml (review for secrets)
+# - .github/workflows/*.yml (review for hardcoded values)
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
