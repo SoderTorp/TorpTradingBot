@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TorpTradingBot</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --red: #f85149;
+      --yellow: #d29922;
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      height: 52px;
+    }
+
+    header h1 { font-size: 15px; font-weight: 600; letter-spacing: .5px; flex-shrink: 0; }
+    header h1 span { color: var(--green); }
+
+    /* ── Tab nav ── */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+      height: 100%;
+      margin: 0 24px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .5px;
+      padding: 0 16px;
+      text-transform: uppercase;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    #status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+      margin-right: 6px;
+      transition: background .3s;
+      flex-shrink: 0;
+    }
+    #status-dot.live { background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    #last-updated { color: var(--muted); font-size: 11px; white-space: nowrap; }
+
+    /* ── Page containers ── */
+    .page { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+    .page.hidden { display: none; }
+
+    /* ── Cards ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .card-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+    .card-value { font-size: 20px; font-weight: 700; }
+    .card-sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+    /* ── Section titles ── */
+    h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 8px; }
+
+    /* ── Strategy state panels ── */
+    .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+    .state-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .state-panel h3 { font-size: 12px; color: var(--blue); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .6px; }
+    .state-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--border); }
+    .state-row:last-child { border-bottom: none; }
+    .state-key { color: var(--muted); }
+    .state-val { font-weight: 500; }
+    .badge {
+      display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600;
+    }
+    .badge-put { background: rgba(188,140,255,.15); color: var(--purple); }
+    .badge-call { background: rgba(63,185,80,.15); color: var(--green); }
+    .badge-open { background: rgba(63,185,80,.15); color: var(--green); }
+    .badge-closed { background: rgba(139,148,158,.12); color: var(--muted); }
+
+    /* ── Trade log table ── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,.03); }
+    tbody td { padding: 8px 12px; white-space: nowrap; }
+
+    .action-buy  { color: var(--green); font-weight: 600; }
+    .action-sell { color: var(--red); font-weight: 600; }
+    .action-other { color: var(--yellow); font-weight: 600; }
+
+    .strategy-tag {
+      display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;
+    }
+    .tag-wheel    { background: rgba(188,140,255,.12); color: var(--purple); }
+    .tag-copy     { background: rgba(63,185,80,.12); color: var(--green); }
+
+    .empty { text-align: center; color: var(--muted); padding: 32px; }
+
+    /* ── Cron log ── */
+    #cron-log {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 11px;
+      color: var(--muted);
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 4px;
+      padding: 3px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-left: 8px;
+    }
+    .toggle-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+    #log-section { display: none; }
+
+    /* ── Config page ── */
+    .config-page {
+      max-width: 860px;
+    }
+
+    .config-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .config-section-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .config-fields {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .config-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .config-field.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .config-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .config-hint {
+      font-size: 10px;
+      color: var(--muted);
+      opacity: .7;
+    }
+
+    .config-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 7px 10px;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    .config-input:focus {
+      border-color: var(--blue);
+      outline: none;
+    }
+
+    .config-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .config-input-wrap .config-input { padding-right: 68px; }
+    .show-btn {
+      position: absolute;
+      right: 8px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 2px 4px;
+    }
+    .show-btn:hover { color: var(--blue); }
+
+    select.config-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+      cursor: pointer;
+    }
+    select.config-input option { background: var(--surface); }
+
+    /* ── Config actions ── */
+    .config-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .3px;
+      padding: 9px 20px;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-primary { background: var(--blue); color: #0d1117; }
+    .btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+
+    /* ── Connection test results ── */
+    .test-results {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .test-result {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .test-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .test-indicator.ok { background: var(--green); }
+    .test-indicator.fail { background: var(--red); }
+    .test-indicator.pending { background: var(--muted); animation: pulse 1s infinite; }
+
+    .test-label { color: var(--muted); min-width: 60px; }
+    .test-msg { color: var(--text); }
+    .test-msg.err { color: var(--red); }
+
+    /* ── Save feedback ── */
+    #save-feedback {
+      font-size: 12px;
+      padding: 3px 0;
+    }
+    #save-feedback.ok { color: var(--green); }
+    #save-feedback.err { color: var(--red); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Torp<span>TradingBot</span></h1>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="tab-dashboard" onclick="showTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" id="tab-config" onclick="showTab('config')">Configuration</button>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:6px;">
+    <span id="status-dot"></span>
+    <span id="last-updated">—</span>
+  </div>
+</header>
+
+<!-- ══════════════ DASHBOARD PAGE ══════════════ -->
+<div id="page-dashboard" class="page">
+
+  <!-- Account balance -->
+  <div class="cards">
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-label">Account Equity</div>
+      <div style="display:flex;align-items:baseline;gap:12px;">
+        <div class="card-value" id="card-equity">—</div>
+        <div id="card-pct" style="font-size:16px;font-weight:700;">—</div>
+      </div>
+      <div class="card-sub" id="card-pnl">vs. starting balance</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Cash Available</div>
+      <div class="card-value" id="card-cash">—</div>
+      <div class="card-sub">buying power</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Portfolio Value</div>
+      <div class="card-value" id="card-portfolio">—</div>
+      <div class="card-sub">positions mark-to-market</div>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="cards" id="cards">
+    <div class="card">
+      <div class="card-label">Trades Today</div>
+      <div class="card-value" id="card-total">—</div>
+      <div class="card-sub" id="card-date">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Buys</div>
+      <div class="card-value" id="card-buys" style="color:var(--green)">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Sells</div>
+      <div class="card-value" id="card-sells" style="color:var(--red)">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Other Actions</div>
+      <div class="card-value" id="card-other" style="color:var(--yellow)">—</div>
+    </div>
+  </div>
+
+  <!-- Strategy state -->
+  <section>
+    <h2>Strategy State</h2>
+    <div class="state-grid" id="state-grid">
+      <div class="state-panel"><h3>Loading…</h3></div>
+    </div>
+  </section>
+
+  <!-- Trade log -->
+  <section>
+    <h2>Trade Log — Today</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time (UTC)</th>
+            <th>Strategy</th>
+            <th>Symbol</th>
+            <th>Action</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Rule Triggered</th>
+            <th>Order ID</th>
+          </tr>
+        </thead>
+        <tbody id="trade-tbody">
+          <tr><td colspan="8" class="empty">Waiting for data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Cron log (collapsible) -->
+  <section id="log-section">
+    <h2>Cron Log <button class="toggle-btn" id="log-toggle" onclick="toggleLog()">hide</button></h2>
+    <pre id="cron-log">Loading…</pre>
+  </section>
+  <div style="display:flex; align-items:center; gap:6px;">
+    <h2 id="log-show-btn" style="cursor:pointer; color:var(--blue);" onclick="showLog()">▶ Show cron log</h2>
+  </div>
+
+</div><!-- #page-dashboard -->
+
+
+<!-- ══════════════ CONFIG PAGE ══════════════ -->
+<div id="page-config" class="page hidden">
+<div class="config-page">
+
+  <!-- Alpaca Credentials -->
+  <div class="config-section">
+    <div class="config-section-header">Alpaca Credentials</div>
+    <div class="config-fields">
+      <div class="config-field">
+        <label class="config-label">API Key</label>
+        <div class="config-input-wrap">
+          <input type="password" id="cfg-KEY" class="config-input" autocomplete="off" spellcheck="false">
+          <button class="show-btn" onclick="toggleShow('cfg-KEY', this)">Show</button>
+        </div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Secret Key</label>
+        <div class="config-input-wrap">
+          <input type="password" id="cfg-SECRET" class="config-input" autocomplete="off" spellcheck="false">
+          <button class="show-btn" onclick="toggleShow('cfg-SECRET', this)">Show</button>
+        </div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Account Type</label>
+        <select id="cfg-PAPER_TRADING" class="config-input">
+          <option value="true">Paper Trading (simulated)</option>
+          <option value="false">Real Money (live account)</option>
+        </select>
+        <div class="config-hint">Set to Real Money only with a live Alpaca account</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget -->
+  <div class="config-section">
+    <div class="config-section-header">Account Budget</div>
+    <div class="config-fields">
+      <div class="config-field">
+        <label class="config-label">Total Budget ($)</label>
+        <input type="number" id="cfg-TOTAL_BUDGET" class="config-input" min="0" step="1000">
+        <div class="config-hint">Total account size tracked by the bot</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Trading Pool (fraction)</label>
+        <input type="number" id="cfg-TRADING_PCT" class="config-input" min="0" max="1" step="0.01">
+        <div class="config-hint">Fraction of budget used for trading — e.g. 0.10 = 10%</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Reserve Floor (fraction)</label>
+        <input type="number" id="cfg-RESERVE_PCT" class="config-input" min="0" max="1" step="0.01">
+        <div class="config-hint">Fraction always kept free — e.g. 0.10 = 10%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategy Allocation -->
+  <div class="config-section">
+    <div class="config-section-header">Strategy Allocation (fraction of trading pool)</div>
+    <div class="config-fields">
+      <div class="config-field">
+        <label class="config-label">Wheel Strategy</label>
+        <input type="number" id="cfg-WHEEL_ALLOC" class="config-input" min="0" max="1" step="0.05">
+        <div class="config-hint">e.g. 0.50 = 50% of trading pool</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Copy Trading</label>
+        <input type="number" id="cfg-COPY_ALLOC" class="config-input" min="0" max="1" step="0.05">
+        <div class="config-hint">e.g. 0.50 = 50% of trading pool</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wheel Strategy -->
+  <div class="config-section">
+    <div class="config-section-header">Wheel Strategy</div>
+    <div class="config-fields">
+      <div class="config-field">
+        <label class="config-label">Stock Symbol</label>
+        <input type="text" id="cfg-WHEEL_STOCK" class="config-input" placeholder="e.g. AAPL">
+        <div class="config-hint">Ticker symbol for the Wheel strategy (cash-secured puts + covered calls)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Copy Trade Risk -->
+  <div class="config-section">
+    <div class="config-section-header">Copy Trade Risk Controls</div>
+    <div class="config-fields">
+      <div class="config-field">
+        <label class="config-label">Max Position Size (%)</label>
+        <input type="number" id="cfg-COPY_TRADE_MAX_POSITION_PCT" class="config-input" min="0" step="0.5">
+        <div class="config-hint">Max % of account per single trade</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Max Total Allocation (%)</label>
+        <input type="number" id="cfg-COPY_TRADE_MAX_ALLOCATION_PCT" class="config-input" min="0" step="1">
+        <div class="config-hint">Max % of account in copy trades total</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Max Concurrent Positions</label>
+        <input type="number" id="cfg-COPY_TRADE_MAX_CONCURRENT" class="config-input" min="1" step="1">
+        <div class="config-hint">Max number of open copy trade positions</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Signal Age Max (days)</label>
+        <input type="number" id="cfg-COPY_TRADE_DISCLOSURE_AGE_MAX" class="config-input" min="1" step="1">
+        <div class="config-hint">Skip signals older than this many days</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Hard Stop Loss (%)</label>
+        <input type="number" id="cfg-COPY_TRADE_STOP_LOSS_PCT" class="config-input" min="0" step="0.5">
+        <div class="config-hint">Exit position at this loss — e.g. 8 = −8%</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Trailing Stop Trigger (%)</label>
+        <input type="number" id="cfg-COPY_TRADE_TRAILING_TRIGGER_PCT" class="config-input" min="0" step="0.5">
+        <div class="config-hint">Activate trailing stop when gain reaches this %</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Trailing Stop Distance (%)</label>
+        <input type="number" id="cfg-COPY_TRADE_TRAILING_DISTANCE_PCT" class="config-input" min="0" step="0.5">
+        <div class="config-hint">Trail by this % from the highest price</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Kelly Fraction</label>
+        <input type="number" id="cfg-COPY_TRADE_KELLY_FRACTION" class="config-input" min="0" max="1" step="0.05">
+        <div class="config-hint">0.25 = conservative ¼ Kelly sizing</div>
+      </div>
+      <div class="config-field full-width">
+        <label class="config-label">Ladder Targets (JSON array)</label>
+        <input type="text" id="cfg-COPY_TRADE_LADDER_TARGETS" class="config-input" spellcheck="false" placeholder="[4,8,12]">
+        <div class="config-hint">Sell ⅓ of position at each target % — e.g. [4,8,12]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ollama -->
+  <div class="config-section">
+    <div class="config-section-header">Ollama AI Advisor</div>
+    <div class="config-fields">
+      <div class="config-field full-width">
+        <label class="config-label">Ollama URL</label>
+        <input type="text" id="cfg-OLLAMA_URL" class="config-input" spellcheck="false" placeholder="http://localhost:11434/api/generate">
+        <div class="config-hint">Full URL to the Ollama generate endpoint</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">Model Name</label>
+        <input type="text" id="cfg-OLLAMA_MODEL" class="config-input" spellcheck="false" placeholder="llama3.2">
+      </div>
+      <div class="config-field">
+        <label class="config-label">Request Timeout (seconds)</label>
+        <input type="number" id="cfg-OLLAMA_TIMEOUT" class="config-input" min="10" step="10">
+        <div class="config-hint">Increase to 300+ for slow computers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="config-actions">
+    <button class="btn btn-primary" onclick="saveConfig()" id="save-btn">Save Settings</button>
+    <button class="btn btn-secondary" onclick="testConnection()" id="test-btn">Test Connection</button>
+    <span id="save-feedback"></span>
+  </div>
+
+  <!-- Test results -->
+  <div class="test-results" id="test-results" style="display:none;">
+    <div class="test-result" id="tr-alpaca">
+      <div class="test-indicator pending" id="tri-alpaca"></div>
+      <span class="test-label">Alpaca</span>
+      <span class="test-msg" id="trm-alpaca">Testing…</span>
+    </div>
+    <div class="test-result" id="tr-ollama">
+      <div class="test-indicator pending" id="tri-ollama"></div>
+      <span class="test-label">Ollama</span>
+      <span class="test-msg" id="trm-ollama">Testing…</span>
+    </div>
+  </div>
+
+</div><!-- .config-page -->
+</div><!-- #page-config -->
+
+
+<script>
+  const POLL_INTERVAL = 5000;
+
+  // ── Tab navigation ────────────────────────────────────────────────────────
+  function showTab(name) {
+    document.getElementById('page-dashboard').classList.toggle('hidden', name !== 'dashboard');
+    document.getElementById('page-config').classList.toggle('hidden', name !== 'config');
+    document.getElementById('tab-dashboard').classList.toggle('active', name === 'dashboard');
+    document.getElementById('tab-config').classList.toggle('active', name === 'config');
+    if (name === 'config') fetchConfig();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function fmt(val, fallback = '—') {
+    return val !== undefined && val !== null && val !== '' ? val : fallback;
+  }
+
+  function fmtPrice(val) {
+    const n = parseFloat(val);
+    return isNaN(n) ? '—' : '$' + n.toFixed(2);
+  }
+
+  function fmtTime(ts) {
+    if (!ts) return '—';
+    return ts.replace('T', ' ').replace('Z', '');
+  }
+
+  function actionClass(action) {
+    const a = (action || '').toUpperCase();
+    if (a === 'BUY' || a.startsWith('BUY')) return 'action-buy';
+    if (a === 'SELL' || a.startsWith('SELL')) return 'action-sell';
+    return 'action-other';
+  }
+
+  function strategyTag(s) {
+    if (!s) return '';
+    const cls = s.includes('wheel') ? 'tag-wheel' : 'tag-copy';
+    const label = s.replace('_', ' ');
+    return `<span class="strategy-tag ${cls}">${label}</span>`;
+  }
+
+  // ── Trades ────────────────────────────────────────────────────────────────
+  async function fetchTrades() {
+    const res = await fetch('/api/trades');
+    const data = await res.json();
+    const trades = data.trades || [];
+
+    const buys  = trades.filter(t => (t.action || '').toUpperCase().startsWith('BUY')).length;
+    const sells = trades.filter(t => (t.action || '').toUpperCase().startsWith('SELL')).length;
+    const other = trades.length - buys - sells;
+    document.getElementById('card-total').textContent  = trades.length;
+    document.getElementById('card-date').textContent   = data.date || '—';
+    document.getElementById('card-buys').textContent   = buys;
+    document.getElementById('card-sells').textContent  = sells;
+    document.getElementById('card-other').textContent  = other;
+
+    const tbody = document.getElementById('trade-tbody');
+    if (trades.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty">No trades yet today.</td></tr>';
+      return;
+    }
+    const rows = [...trades].reverse().map(t => `
+      <tr>
+        <td>${fmtTime(t.timestamp)}</td>
+        <td>${strategyTag(t.strategy)}</td>
+        <td><strong>${fmt(t.symbol)}</strong></td>
+        <td class="${actionClass(t.action)}">${fmt(t.action)}</td>
+        <td>${fmt(t.qty)}</td>
+        <td>${fmtPrice(t.price)}</td>
+        <td style="color:var(--muted);max-width:280px;overflow:hidden;text-overflow:ellipsis;"
+            title="${fmt(t.rule_triggered)}">${fmt(t.rule_triggered)}</td>
+        <td style="color:var(--muted);font-size:11px;">${fmt(t.order_id)}</td>
+      </tr>`).join('');
+    tbody.innerHTML = rows;
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  function stateRow(key, val) {
+    return `<div class="state-row"><span class="state-key">${key}</span><span class="state-val">${val}</span></div>`;
+  }
+
+  function renderWheelPanel(s) {
+    if (!s || Object.keys(s).length === 0)
+      return '<div class="state-panel"><h3>Wheel</h3>' + stateRow('status', 'no state yet') + '</div>';
+    const stageBadge = s.stage === 'PUT'
+      ? '<span class="badge badge-put">PUT stage</span>'
+      : '<span class="badge badge-call">CALL stage</span>';
+    return `<div class="state-panel">
+      <h3>Wheel Strategy</h3>
+      ${stateRow('symbol', fmt(s.symbol))}
+      ${stateRow('stage', stageBadge)}
+      ${stateRow('shares owned', fmt(s.shares_owned))}
+      ${stateRow('cost basis', fmtPrice(s.cost_basis))}
+      ${stateRow('premium collected', s.premium_collected != null ? '$' + parseFloat(s.premium_collected).toFixed(2) : '—')}
+      ${stateRow('open contract', fmt(s.current_contract, 'none'))}
+      ${stateRow('contract entry px', fmtPrice(s.contract_entry_price))}
+    </div>`;
+  }
+
+  function renderCopyPanel(s) {
+    if (!s || Object.keys(s).length === 0)
+      return '<div class="state-panel"><h3>Copy Trading</h3>' + stateRow('status', 'no state yet') + '</div>';
+    const trades = s.copy_trades || [];
+    const open    = trades.filter(t => t.status === 'OPEN');
+    const closed  = trades.filter(t => t.status === 'CLOSED');
+    const skipped = trades.filter(t => t.status === 'SKIPPED');
+    const realizedPnl = closed.reduce((sum, t) => sum + (t.realized_pnl || 0), 0);
+
+    const positionRows = open.map(t => {
+      const pctChg = t.entry_price
+        ? ((t.highest_price - t.entry_price) / t.entry_price * 100).toFixed(1) : '—';
+      const ladderDone = (t.ladder_filled || []).filter(Boolean).length;
+      const trailing = t.trailing_stop_activated
+        ? '<span style="color:var(--green)">active</span>'
+        : '<span style="color:var(--muted)">waiting</span>';
+      return `<div class="state-row" style="flex-direction:column;align-items:flex-start;padding:6px 0;gap:2px;">
+        <div style="display:flex;justify-content:space-between;width:100%;">
+          <span style="font-weight:600;">${t.ticker}</span>
+          <span class="${parseFloat(pctChg) >= 0 ? 'action-buy' : 'action-sell'}">${pctChg}% from entry</span>
+        </div>
+        <div style="color:var(--muted);font-size:11px;display:flex;gap:12px;">
+          <span>${t.shares} shares @ $${(t.entry_price||0).toFixed(2)}</span>
+          <span>stop $${(t.stop_loss_price||0).toFixed(2)}</span>
+          <span>trail: ${trailing}</span>
+          <span>ladder ${ladderDone}/${(t.ladder_filled||[]).length}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="state-panel" style="grid-column: span 2;">
+      <h3>Copy Trading</h3>
+      ${stateRow('following', fmt(s.followed_politician))}
+      ${stateRow('open positions', open.length + ' / 3 max')}
+      ${stateRow('closed trades', closed.length)}
+      ${stateRow('skipped (gated)', skipped.length)}
+      ${stateRow('realized P&L', (realizedPnl >= 0 ? '+' : '') + '$' + realizedPnl.toFixed(2))}
+      ${open.length ? `<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px;">${positionRows}</div>` : ''}
+    </div>`;
+  }
+
+  async function fetchState() {
+    const res = await fetch('/api/state');
+    const data = await res.json();
+    document.getElementById('state-grid').innerHTML =
+      renderWheelPanel(data.wheel) +
+      renderCopyPanel(data.copy_trading);
+  }
+
+  // ── Cron log ──────────────────────────────────────────────────────────────
+  async function fetchLog() {
+    const res = await fetch('/api/log');
+    const text = await res.text();
+    const el = document.getElementById('cron-log');
+    el.textContent = text || '(empty)';
+    el.scrollTop = el.scrollHeight;
+  }
+
+  let logVisible = false;
+  function showLog() {
+    logVisible = true;
+    document.getElementById('log-section').style.display = 'block';
+    document.getElementById('log-show-btn').style.display = 'none';
+    fetchLog();
+  }
+  function toggleLog() {
+    document.getElementById('log-section').style.display = 'none';
+    document.getElementById('log-show-btn').style.display = 'block';
+    logVisible = false;
+  }
+
+  // ── Status dot ────────────────────────────────────────────────────────────
+  function setLive(ok) {
+    const dot = document.getElementById('status-dot');
+    dot.className = ok ? 'live' : '';
+    document.getElementById('last-updated').textContent =
+      'updated ' + new Date().toLocaleTimeString();
+  }
+
+  // ── Account ───────────────────────────────────────────────────────────────
+  async function fetchAccount() {
+    const res = await fetch('/api/account');
+    const d = await res.json();
+    if (d.error) {
+      document.getElementById('card-equity').textContent = 'error';
+      document.getElementById('card-equity').style.color = 'var(--red)';
+      document.getElementById('card-pct').textContent = '';
+      document.getElementById('card-pnl').textContent = d.error;
+      document.getElementById('card-pnl').style.color = 'var(--red)';
+      document.getElementById('card-cash').textContent = '—';
+      document.getElementById('card-portfolio').textContent = '—';
+      return;
+    }
+
+    const pct = d.pct_change;
+    const pnl = d.pnl;
+    const isUp = pct >= 0;
+
+    document.getElementById('card-equity').textContent =
+      '$' + d.equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('card-equity').style.color = '';
+
+    const pctEl = document.getElementById('card-pct');
+    pctEl.textContent = (isUp ? '+' : '') + pct.toFixed(2) + '%';
+    pctEl.style.color = isUp ? 'var(--green)' : 'var(--red)';
+
+    const pnlEl = document.getElementById('card-pnl');
+    const pnlStr = (isUp ? '+$' : '-$') + Math.abs(pnl).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    pnlEl.textContent = pnlStr + ' vs. $' + d.starting_budget.toLocaleString('en-US') + ' starting';
+    pnlEl.style.color = isUp ? 'var(--green)' : 'var(--red)';
+
+    document.getElementById('card-cash').textContent =
+      '$' + d.cash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    document.getElementById('card-portfolio').textContent =
+      '$' + d.portfolio_value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // ── Poll loop ─────────────────────────────────────────────────────────────
+  async function poll() {
+    try {
+      await Promise.all([fetchTrades(), fetchState(), fetchAccount()]);
+      if (logVisible) await fetchLog();
+      setLive(true);
+    } catch (e) {
+      setLive(false);
+      console.error(e);
+    }
+  }
+
+  poll();
+  setInterval(poll, POLL_INTERVAL);
+
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CONFIG PAGE
+  // ══════════════════════════════════════════════════════════════════════════
+
+  const CFG_FIELDS = [
+    'KEY', 'SECRET', 'PAPER_TRADING',
+    'TOTAL_BUDGET', 'TRADING_PCT', 'RESERVE_PCT',
+    'WHEEL_ALLOC', 'WHEEL_STOCK', 'COPY_ALLOC',
+    'COPY_TRADE_MAX_POSITION_PCT', 'COPY_TRADE_MAX_ALLOCATION_PCT',
+    'COPY_TRADE_MAX_CONCURRENT', 'COPY_TRADE_DISCLOSURE_AGE_MAX',
+    'COPY_TRADE_STOP_LOSS_PCT', 'COPY_TRADE_TRAILING_TRIGGER_PCT',
+    'COPY_TRADE_TRAILING_DISTANCE_PCT', 'COPY_TRADE_KELLY_FRACTION',
+    'COPY_TRADE_LADDER_TARGETS',
+    'OLLAMA_URL', 'OLLAMA_MODEL', 'OLLAMA_TIMEOUT',
+  ];
+
+  // Show/hide password field
+  function toggleShow(id, btn) {
+    const el = document.getElementById(id);
+    if (el.type === 'password') {
+      el.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      el.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+
+  // Load current config values into form
+  async function fetchConfig() {
+    try {
+      const res = await fetch('/api/config');
+      const d = await res.json();
+      for (const key of CFG_FIELDS) {
+        const el = document.getElementById('cfg-' + key);
+        if (!el) continue;
+        if (el.tagName === 'SELECT') {
+          el.value = String(d[key]);
+        } else {
+          el.value = d[key] !== undefined ? d[key] : '';
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load config:', e);
+    }
+  }
+
+  // Collect all form values into a plain object
+  function collectConfig() {
+    const out = {};
+    for (const key of CFG_FIELDS) {
+      const el = document.getElementById('cfg-' + key);
+      if (!el) continue;
+      out[key] = el.value.trim();
+    }
+    return out;
+  }
+
+  // Save config to .env via API
+  async function saveConfig() {
+    const btn = document.getElementById('save-btn');
+    const fb = document.getElementById('save-feedback');
+    btn.disabled = true;
+    fb.textContent = 'Saving…';
+    fb.className = '';
+
+    // Basic validation
+    const data = collectConfig();
+    try {
+      JSON.parse(data['COPY_TRADE_LADDER_TARGETS']);
+    } catch (_) {
+      fb.textContent = 'Error: Ladder Targets must be a valid JSON array, e.g. [4,8,12]';
+      fb.className = 'err';
+      btn.disabled = false;
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (result.ok) {
+        fb.textContent = '✓ ' + result.message;
+        fb.className = 'ok';
+      } else {
+        fb.textContent = 'Error: ' + (result.error || 'Unknown error');
+        fb.className = 'err';
+      }
+    } catch (e) {
+      fb.textContent = 'Error: ' + e.message;
+      fb.className = 'err';
+    }
+    btn.disabled = false;
+  }
+
+  // Test Alpaca + Ollama connections
+  async function testConnection() {
+    const btn = document.getElementById('test-btn');
+    btn.disabled = true;
+
+    const resultsEl = document.getElementById('test-results');
+    resultsEl.style.display = 'flex';
+
+    // Reset to pending state
+    for (const svc of ['alpaca', 'ollama']) {
+      document.getElementById('tri-' + svc).className = 'test-indicator pending';
+      document.getElementById('trm-' + svc).textContent = 'Testing…';
+      document.getElementById('trm-' + svc).className = 'test-msg';
+    }
+
+    const data = collectConfig();
+    try {
+      const res = await fetch('/api/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+
+      for (const svc of ['alpaca', 'ollama']) {
+        const r = result[svc];
+        if (!r) continue;
+        const ind = document.getElementById('tri-' + svc);
+        const msg = document.getElementById('trm-' + svc);
+        ind.className = 'test-indicator ' + (r.ok ? 'ok' : 'fail');
+        msg.textContent = r.message || '—';
+        msg.className = 'test-msg' + (r.ok ? '' : ' err');
+      }
+    } catch (e) {
+      for (const svc of ['alpaca', 'ollama']) {
+        document.getElementById('tri-' + svc).className = 'test-indicator fail';
+        document.getElementById('trm-' + svc).textContent = 'Request failed: ' + e.message;
+        document.getElementById('trm-' + svc).className = 'test-msg err';
+      }
+    }
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
