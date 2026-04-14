@@ -203,7 +203,8 @@ def api_config_get():
     try:
         return jsonify(_load_config())
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        log.exception("Failed to load config.yaml", exc_info=exc)
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/api/config", methods=["POST"])
@@ -227,7 +228,8 @@ def api_config_post():
         _save_config(current)
         return jsonify({"ok": True, "message": "Config saved. Cron jobs pick up changes on next run."})
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        log.exception("Failed to update config.yaml", exc_info=exc)
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/api/test-connection", methods=["POST"])
