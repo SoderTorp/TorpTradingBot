@@ -1,0 +1,40 @@
+mode: dry_run  # "dry_run" or "live" — must be explicit to enable live trading
+
+ollama:
+  host: http://192.168.68.98:11434
+  model: llama3.2:1b  # any locally available model
+
+polymarket:
+  # Wallet management
+  auto_discover_wallets: true
+  min_score_threshold: 0.65
+  watchlist_refresh_hours: 24
+  max_wallets_tracked: 20
+
+  # Scoring weights (must sum to 1.0)
+  scoring:
+    recency_weight: 0.30
+    win_rate_weight: 0.35
+    entry_timing_weight: 0.25
+    diversity_weight: 0.10
+
+  # Trade execution filters
+  min_bet_usdc: 20
+  max_bet_usdc: 50
+  min_market_volume: 10000
+  max_days_to_resolution: 30
+  position_sizing: "fixed"  # "fixed" or "proportional"
+  dry_run_starting_balance: 250  # virtual USDC per strategy (250 regular + 250 suspicious = $500 total)
+
+  # Discovery
+  discovery_min_trade_size_usdc: 500
+
+suspicious:
+  enabled: true
+  min_score: 0.45
+  max_account_age_days: 30        # disqualify wallets older than this
+  min_political_win_rate: 0.70    # flag if win rate on political markets exceeds this
+  min_concentration_pct: 0.80     # flag if 80%+ of portfolio is in political markets
+  scan_limit: 200                 # max candidates pulled from /trades endpoint
+  watchlist_refresh_hours: 6      # how often scan_suspicious runs (for reference)
+  max_wallets_tracked: 10         # cap on suspicious watchlist size

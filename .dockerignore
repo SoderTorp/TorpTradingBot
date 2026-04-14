@@ -1,8 +1,10 @@
 .env
+.venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .git/
+.claude/
 logs/
 state/
