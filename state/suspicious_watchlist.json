@@ -1,0 +1,25 @@
+[
+  {
+    "wallet": "0xfd1b8611766aad69b44ca862037268390ec9e3b3",
+    "score": 0.5799,
+    "score_breakdown": {
+      "account_age": 1.0,
+      "concentration": 0.163,
+      "velocity": 0.405,
+      "win_rate": 1.0,
+      "roi": 0.0
+    },
+    "account_age_days": 3.1,
+    "political_categories": [
+      "TECH_REGULATION"
+    ],
+    "flags": [
+      "new_account_3d",
+      "political_win_rate_100%",
+      "trade_velocity_8.1_per_day",
+      "categories:[TECH_REGULATION]"
+    ],
+    "last_detected_at": "2026-04-14T09:17:31.831198+00:00",
+    "last_scored_at": "2026-04-14T09:17:31.831198+00:00"
+  }
+]

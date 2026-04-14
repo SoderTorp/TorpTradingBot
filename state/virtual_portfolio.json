@@ -1,0 +1,79 @@
+{
+  "starting_balance": 250,
+  "available_balance": 22.7,
+  "realized_pnl": 0.0,
+  "open_positions": {
+    "0x19d80a9297473ae0d894db566318c96ea22cb8a8a7f64d7af530d3eb39f53be0": {
+      "wallet_copied": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
+      "outcome": "Pedro Martinez",
+      "side": "BUY",
+      "size_usdc": 50,
+      "entry_price": 0.34,
+      "shares": 147.058824,
+      "strategy": "polymarket_copy",
+      "opened_at": "2026-04-14T10:05:09.552371+00:00",
+      "current_price": 0.3,
+      "unrealized_pnl": -5.8824,
+      "market_title": "Barcelona Open: Pedro Martinez vs Lorenzo Sonego",
+      "end_date": "2026-04-21T00:00:00Z"
+    },
+    "0xc330056134e66f0874ea8acceafa91c59c142ff10e94f9cca603ab44ec32e4d4": {
+      "wallet_copied": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
+      "outcome": "Dominika Salkova",
+      "side": "BUY",
+      "size_usdc": 50,
+      "entry_price": 0.5909215017064846,
+      "shares": 84.613607,
+      "strategy": "polymarket_copy",
+      "opened_at": "2026-04-14T10:05:12.856462+00:00",
+      "current_price": 0.485,
+      "unrealized_pnl": -8.9624,
+      "market_title": "Open Capfinances Rouen Metropole: Anna Blinkova vs Dominika Salkova",
+      "end_date": "2026-04-21T00:00:00Z"
+    },
+    "0x1cbd2a1bec9ca515402fa0ad5f940467ec4fbdfb0102772b8a1bb272ceac670f": {
+      "wallet_copied": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
+      "outcome": "MOUZ NXT",
+      "side": "BUY",
+      "size_usdc": 50,
+      "entry_price": 0.85,
+      "shares": 58.823529,
+      "strategy": "polymarket_copy",
+      "opened_at": "2026-04-14T10:05:15.885766+00:00",
+      "current_price": 0.905,
+      "unrealized_pnl": 3.2353,
+      "market_title": "Counter-Strike: MOUZ NXT vs GenOne (BO3) - NODWIN Clutch Series Group Stage",
+      "end_date": "2026-04-14T00:00:00Z"
+    },
+    "0x5925b6b6695214066cdf3e352092622584fac10bd054620982d6a6311765054c": {
+      "wallet_copied": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
+      "outcome": "Sebastian Ofner",
+      "side": "BUY",
+      "size_usdc": 50,
+      "entry_price": 0.22,
+      "shares": 227.272727,
+      "strategy": "polymarket_copy",
+      "opened_at": "2026-04-14T10:05:32.742544+00:00",
+      "current_price": 0.24,
+      "unrealized_pnl": 4.5455,
+      "market_title": "Barcelona Open: Alex de Minaur vs Sebastian Ofner",
+      "end_date": "2026-04-21T00:00:00Z"
+    },
+    "0xbb500fa025e7597e2231b9055a969081ec55992d1937e4e443229c61e124b583": {
+      "wallet_copied": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
+      "outcome": "Linda Fruhvirtova",
+      "side": "BUY",
+      "size_usdc": 27.3,
+      "entry_price": 0.39,
+      "shares": 70.0,
+      "strategy": "polymarket_copy",
+      "opened_at": "2026-04-14T10:12:45.530013+00:00",
+      "current_price": 0.39,
+      "unrealized_pnl": 0.0
+    }
+  },
+  "closed_positions": [],
+  "wins": 0,
+  "losses": 0,
+  "last_updated": "2026-04-14T10:12:45.530017+00:00"
+}

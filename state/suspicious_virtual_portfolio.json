@@ -1,0 +1,23 @@
+{
+  "starting_balance": 250,
+  "available_balance": 200,
+  "realized_pnl": 0.0,
+  "open_positions": {
+    "0x7eb5bd2fce028c1d44718816cc48c80c42186348969a46d5c69b99d238f80a52": {
+      "wallet_copied": "0xfd1b8611766aad69b44ca862037268390ec9e3b3",
+      "outcome": "Up",
+      "side": "BUY",
+      "size_usdc": 50,
+      "entry_price": 0.7,
+      "shares": 71.428571,
+      "strategy": "suspicious_copy",
+      "opened_at": "2026-04-14T10:07:04.564350+00:00",
+      "current_price": 0.7,
+      "unrealized_pnl": 0.0
+    }
+  },
+  "closed_positions": [],
+  "wins": 0,
+  "losses": 0,
+  "last_updated": "2026-04-14T10:07:04.564376+00:00"
+}

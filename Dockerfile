@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY crontab /etc/cron.d/tradingbot
-RUN chmod 0644 /etc/cron.d/tradingbot && crontab /etc/cron.d/tradingbot
+COPY scheduler/cron_jobs.sh /tmp/crontab
+RUN crontab /tmp/crontab && rm /tmp/crontab
 
 RUN mkdir -p /app/logs /app/state
 
